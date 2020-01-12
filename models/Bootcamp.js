@@ -117,6 +117,14 @@ BootcampSchema.pre("save", function(next) {
   next();
 });
 
+// Reverse virtual
+BootcampSchema.virtual("courses", {
+  ref: "Course",
+  localField: "_id",
+  foreignField: "bootcamp",
+  justOne: false
+});
+
 // Geocode and create location field
 BootcampSchema.pre("save", async function(next) {
   const loc = await geocoder.geocode(this.address);
@@ -132,6 +140,12 @@ BootcampSchema.pre("save", async function(next) {
   };
 
   this.address = undefined;
+  next();
+});
+
+// Cascade delete on bootcamp remove
+BootcampSchema.pre("remove", async function(next) {
+  await this.model("Course").deleteMany({ bootcamp: this._id });
   next();
 });
 
