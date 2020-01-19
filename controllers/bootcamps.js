@@ -1,3 +1,4 @@
+const path = require("path");
 const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/ErrorResponse");
 const geocoder = require("../utils/geocoder");
@@ -19,20 +20,19 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
   // Loop over removeFields and delete them from reqQuery
   removeFields.forEach(param => delete reqQuery[param]);
+  console.log(reqQuery);
 
   let queryStr = JSON.stringify(reqQuery);
 
   // Operator creation
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-
-  console.log(JSON.parse(queryStr));
+  console.log(queryStr);
 
   query = Bootcamp.find(JSON.parse(queryStr)).populate("courses");
 
   // Select fields
   if (req.query.select) {
     const fields = req.query.select.split(",").join(" ");
-    console.log(fields);
     query = query.select(fields);
   }
 
@@ -120,7 +120,9 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
   });
 
   if (!bootcamp) {
-    return res.status(400).json({ success: false });
+    return next(
+      new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404)
+    );
   }
 
   res.status(200).json({ success: true, data: bootcamp });
@@ -133,7 +135,9 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
-    return res.status(400).json({ success: false });
+    return next(
+      new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404)
+    );
   }
 
   bootcamp.remove();
@@ -168,4 +172,48 @@ exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
   res
     .status(200)
     .json({ success: true, count: bootcamps.length, data: bootcamps });
+});
+
+// @desc        Upload a bootcamp photo
+// @route       PUT /api/v1/bootcamps/:id/photo
+// @access      Private
+exports.uploadBootcampPhoto = asyncHandler(async (req, res, next) => {
+  const bootcamp = await Bootcamp.findById(req.params.id);
+
+  if (!bootcamp) {
+    return next(
+      new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404)
+    );
+  }
+
+  if (!req.files) {
+    return next(new ErrorResponse(`No photo found`, 404));
+  }
+
+  const file = req.files.file;
+
+  if (!file.mimetype.startsWith("image")) {
+    return next(new ErrorResponse(`Please upload an image`, 400));
+  }
+
+  if (file.size > process.env.MAX_FILE_UPLOAD) {
+    return next(
+      new ErrorResponse(
+        `Please upload an image with a size les than ${process.env.MAX_FILE_UPLOAD}`,
+        400
+      )
+    );
+  }
+
+  // Custom file name
+  file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
+
+  file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+    if (err) {
+      return next(new ErrorResponse(`Server error`, 500));
+    }
+
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
+    res.status(200).json({ success: true, data: file.name });
+  });
 });
