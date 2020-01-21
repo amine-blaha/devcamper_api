@@ -16,10 +16,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 // @access      Public
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.id);
-  console.log("inside try".blue);
-
   if (!bootcamp) {
-    console.log("inside !bootcamp".blue);
     return next(
       new ErrorResponse(`Bootcamp not found with id: ${req.params.id}`, 404)
     );
@@ -94,11 +91,8 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
   const { zipcode, distance } = req.params;
 
-  console.log(zipcode.blue);
-
   // get lat/long from geocoder
   const loc = await geocoder.geocode(zipcode);
-  console.log(loc);
   const lat = loc[0].latitude;
   const lng = loc[0].longitude;
 

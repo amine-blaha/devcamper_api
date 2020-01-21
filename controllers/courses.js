@@ -14,7 +14,6 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
       .status(200)
       .json({ success: true, count: courses.length, data: courses });
   } else {
-    console.log("here");
     res.status(200).json(res.advancedResults);
   }
 });
@@ -40,10 +39,16 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 // @access      Public
 exports.addCourse = asyncHandler(async (req, res, next) => {
   req.body.bootcamp = req.params.bootcampId;
+  req.body.user = req.user.id;
+
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
   if (!bootcamp) {
     return next(new ErrorResponse("Bootcamp does not exit", 404));
+  }
+
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(new ErrorResponse(`Not authorized`, 401));
   }
 
   const course = await Course.create(req.body);
@@ -59,6 +64,10 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 
   if (!course) {
     return next(new ErrorResponse("Course does not exit", 404));
+  }
+
+  if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(new ErrorResponse(`Not authorized`, 401));
   }
 
   course = await Course.findByIdAndUpdate(req.params.id, req.body, {
@@ -77,6 +86,10 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 
   if (!course) {
     return next(new ErrorResponse("Course does not exit", 404));
+  }
+
+  if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(new ErrorResponse(`Not authorized`, 401));
   }
 
   await course.remove();

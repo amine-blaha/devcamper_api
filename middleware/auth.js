@@ -23,18 +23,14 @@ exports.protect = asyncHandler(async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
 
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      console.log("!user");
       return next(new ErrorResponse("Not authorized", 401));
     }
 
     req.user = user;
-
-    console.log("after user");
 
     next();
   } catch (error) {

@@ -67,7 +67,6 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access      Private
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
-  console.log(user);
   if (!user) {
     return next(new ErrorResponse("Not authorized"), 401);
   }
