@@ -36,7 +36,6 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// Cascade delete on bootcamp remove
 UserSchema.pre("save", async function(next) {
   if (!this.isModified("password")) {
     next();
