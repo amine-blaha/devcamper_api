@@ -3,9 +3,9 @@ const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middleware/async");
 
-// @desc        GET Courses
-// @route       /api/v1/courses
-// @route       /api/v1/:bootcampId/courses
+// @desc        Get Courses
+// @route       GET /api/v1/courses
+// @route       GET /api/v1/:bootcampId/courses
 // @access      Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampId) {
@@ -18,8 +18,8 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
   }
 });
 
-// @desc        GET a single course
-// @route       /api/v1/courses/:id
+// @desc        Get a single course
+// @route       GET /api/v1/courses/:id
 // @access      Public
 exports.getCourse = asyncHandler(async (req, res, next) => {
   const course = await Course.findById(req.params.id).populate({
@@ -34,8 +34,8 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: course });
 });
 
-// @desc        POST add a course
-// @route       /api/v1/bootcamps/:bootcampId/courses
+// @desc        Add a course
+// @route       POST /api/v1/bootcamps/:bootcampId/courses
 // @access      Public
 exports.addCourse = asyncHandler(async (req, res, next) => {
   req.body.bootcamp = req.params.bootcampId;
@@ -56,8 +56,8 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: course });
 });
 
-// @desc        PUT add a course
-// @route       /api/v1/courses/:id
+// @desc        Update add a course
+// @route       PUT /api/v1/courses/:id
 // @access      Public
 exports.updateCourse = asyncHandler(async (req, res, next) => {
   let course = await Course.findById(req.params.id);
@@ -78,8 +78,8 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: course });
 });
 
-// @desc        DELETE add a course
-// @route       /api/v1/courses/:id
+// @desc        Delete a course
+// @route       DELETE /api/v1/courses/:id
 // @access      Public
 exports.deleteCourse = asyncHandler(async (req, res, next) => {
   const course = await Course.findById(req.params.id);
