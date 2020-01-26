@@ -4,9 +4,11 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const fileupload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
-const colors = require("colors");
-const errorHandler = require("./middleware/errors");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const errorHandler = require("./middleware/errors");
+const colors = require("colors");
 
 // Load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -28,6 +30,12 @@ app.use(express.json());
 
 // Mongo sanitize
 app.use(mongoSanitize());
+
+// Set securoty headers
+app.use(helmet());
+
+// Prevent XSS attacks
+app.use(xss());
 
 app.use(cookieParser());
 
