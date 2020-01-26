@@ -6,6 +6,7 @@ const fileupload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
 const colors = require("colors");
 const errorHandler = require("./middleware/errors");
+const mongoSanitize = require("express-mongo-sanitize");
 
 // Load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -24,6 +25,9 @@ app = express();
 
 // Body Parser
 app.use(express.json());
+
+// Mongo sanitize
+app.use(mongoSanitize());
 
 app.use(cookieParser());
 
